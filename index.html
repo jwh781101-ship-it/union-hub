@@ -531,7 +531,7 @@ function openGroup(grp, activeItem = null) {
     : grp.group;
 
   const url = getUrl(grp.id);
-  url ? renderFrame(url) : renderPlaceholder(grp);
+  url ? renderFrame(url, grp.id) : renderPlaceholder(grp);
 
   // 버튼 바인딩
   document.getElementById('btnNewTab').onclick = () => {
@@ -539,41 +539,72 @@ function openGroup(grp, activeItem = null) {
   };
   document.getElementById('btnReload').onclick = () => {
     const u = getUrl(activeGroupId);
-    if (u) { const f = document.querySelector('#frameBody iframe'); if(f){f.src='';setTimeout(()=>f.src=u,50);} }
+    if (u) { const f = iframeCache[activeGroupId]; if(f){f.src='';setTimeout(()=>f.src=u,50);} }
   };
   document.getElementById('btnClose').onclick = closeView;
 }
 
-function renderFrame(url) {
+// ── iframe 캐시 — 한번 로딩한 iframe은 숨겨두고 재사용 ──────────────
+const iframeCache = {}; // { groupId: iframeElement }
+
+function renderFrame(url, groupId) {
   document.getElementById('tbUrl').textContent = url;
-  document.getElementById('frameBody').innerHTML =
-    `<iframe src="${url}" allowfullscreen></iframe>`;
+  const body = document.getElementById('frameBody');
+
+  // 모든 캐시된 iframe 숨기기
+  Object.values(iframeCache).forEach(f => f.style.display = 'none');
+  // placeholder 제거
+  const ph = body.querySelector('.placeholder');
+  if (ph) ph.remove();
+
+  if (iframeCache[groupId]) {
+    // 이미 로딩된 iframe → 그냥 보여주기 (재로딩 없음)
+    iframeCache[groupId].style.display = 'block';
+  } else {
+    // 처음 로딩 → iframe 생성 후 캐시
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;position:absolute;inset:0;';
+    body.appendChild(iframe);
+    iframeCache[groupId] = iframe;
+  }
 }
 
 function renderPlaceholder(grp) {
   document.getElementById('tbUrl').textContent = '— URL 미설정';
+  const body = document.getElementById('frameBody');
+
+  // 모든 캐시된 iframe 숨기기
+  Object.values(iframeCache).forEach(f => f.style.display = 'none');
+
+  // placeholder 이미 있으면 제거 후 재생성
+  const existing = body.querySelector('.placeholder');
+  if (existing) existing.remove();
+
   const chips = grp.items.map(i => `<span class="ph-chip">${i.icon} ${i.name}</span>`).join('');
-  document.getElementById('frameBody').innerHTML = `
-    <div class="placeholder">
-      <div class="ph-emoji">${grp.icon}</div>
-      <div class="ph-title">${grp.group}</div>
-      <div class="ph-sub">GAS 배포 URL을 입력하면 이 창에서 바로 실행됩니다</div>
-      <div class="ph-chips">${chips}</div>
-      <div class="url-row">
-        <input class="url-input" id="urlInput" type="url"
-          placeholder="https://script.google.com/macros/s/...">
-        <button class="url-submit" id="urlSubmit">저장 &amp; 열기</button>
-      </div>
+  const ph = document.createElement('div');
+  ph.className = 'placeholder';
+  ph.innerHTML = `
+    <div class="ph-emoji">${grp.icon}</div>
+    <div class="ph-title">${grp.group}</div>
+    <div class="ph-sub">GAS 배포 URL을 입력하면 이 창에서 바로 실행됩니다</div>
+    <div class="ph-chips">${chips}</div>
+    <div class="url-row">
+      <input class="url-input" id="urlInput" type="url"
+        placeholder="https://script.google.com/macros/s/...">
+      <button class="url-submit" id="urlSubmit">저장 &amp; 열기</button>
     </div>
   `;
+  body.appendChild(ph);
+
   const submit = () => {
     const val = document.getElementById('urlInput').value.trim();
     if (!val) return;
     saveUrl(activeGroupId, val);
-    // dot 갱신
     const dot = document.querySelector(`.tree-group-label[data-group="${activeGroupId}"] .url-dot`);
     if (dot) dot.style.opacity = '0.75';
-    renderFrame(val);
+    renderFrame(val, activeGroupId);
   };
   document.getElementById('urlSubmit').addEventListener('click', submit);
   document.getElementById('urlInput').addEventListener('keydown', e => { if(e.key==='Enter') submit(); });
@@ -586,6 +617,8 @@ function closeView() {
   document.getElementById('breadcrumb').innerHTML = '<span>허브</span>';
   document.querySelectorAll('.tree-group-label').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
+  // iframe들은 숨기기만 (캐시 유지)
+  Object.values(iframeCache).forEach(f => f.style.display = 'none');
 }
 </script>
 </body>
