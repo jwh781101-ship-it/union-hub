@@ -335,6 +335,7 @@ body {
       <span class="peek-icon">📣</span>
       <span class="peek-icon">📱</span>
       <span class="peek-icon">💰</span>
+      <span class="peek-icon">🎁</span>
       <span class="peek-icon">🎲</span>
     </div>
     <div class="sidebar-header">
@@ -424,6 +425,18 @@ const SYSTEMS = [
     ]
   },
   {
+    id: 'welfare', url: 'https://script.google.com/macros/s/AKfycbwZPSPyz_AwV6aEsI-ZREKn6hO2RM7g0ylcF1gpZtOJUJlWBEZeiPuCX1ZwgQyp47dj/exec', icon: '🎁', group: '복지몰 관리',
+    items: [
+      { icon: '📊', name: '현황판' },
+      { icon: '👥', name: '임직원 일괄등록' },
+      { icon: '🎯', name: '포인트 배정' },
+    ]
+  },
+      { icon: '💾', name: '저장된 문서' },
+      { icon: '📄', name: 'PDF 생성' },
+    ]
+  },
+  {
     id: 'raffle', url: 'https://script.google.com/macros/s/AKfycby81zoMDJ3kTP5XbQ_xh2ubRyhDqDJ86jb7llJqMJjDNs1U93kN5ToULHpwCm_GXxtf/exec', icon: '🎲', group: '이벤트 추첨',
     items: [
       { icon: '🔍', name: '과거 행사 참여자 조회' },
@@ -435,7 +448,7 @@ const SYSTEMS = [
 
 const STORE = 'ncHubUrls_v3';
 const urls  = JSON.parse(localStorage.getItem(STORE) || '{}');
-const HARDCODED = {"members": "https://script.google.com/macros/s/AKfycbxADZMqSdrmSFQTfoyhrJDjHDPa0EBI_PIJOEQWRCdFr2KuMPOIuyv9yDWemMLiAIComw/exec", "dues": "https://script.google.com/macros/s/AKfycbw9grufTk2mw4EfiGFG8ls2AO0vCFZdqwmcbLoD2_6nRnj8g2Jnb2GVWbQhmGUU0nlT/exec", "alimtalk": "https://script.google.com/macros/s/AKfycbytfXL_druAE9uOuhgCIUixJaXDXEnKwM20Lcwb6KaXYn_XeGe-HL32LL1MvzbzR-LV/exec", "sms": "https://script.google.com/macros/s/AKfycbwyEx5noIfhLSMk3yAXwJWEVQ_zA1LvQpgeemVEyT7vU5r_wA9h5hIuAJso3i1Offp-/exec", "expense": "https://script.google.com/macros/s/AKfycbw7YgXLRQAiECakoXnyRS6A0kCK_wP3xkYQCsGYyBpLI218fzsThTRLzN5vFN6IM6bQ/exec", "raffle": "https://script.google.com/macros/s/AKfycby81zoMDJ3kTP5XbQ_xh2ubRyhDqDJ86jb7llJqMJjDNs1U93kN5ToULHpwCm_GXxtf/exec"};
+const HARDCODED = {"members": "https://script.google.com/macros/s/AKfycbxADZMqSdrmSFQTfoyhrJDjHDPa0EBI_PIJOEQWRCdFr2KuMPOIuyv9yDWemMLiAIComw/exec", "dues": "https://script.google.com/macros/s/AKfycbw9grufTk2mw4EfiGFG8ls2AO0vCFZdqwmcbLoD2_6nRnj8g2Jnb2GVWbQhmGUU0nlT/exec", "alimtalk": "https://script.google.com/macros/s/AKfycbytfXL_druAE9uOuhgCIUixJaXDXEnKwM20Lcwb6KaXYn_XeGe-HL32LL1MvzbzR-LV/exec", "sms": "https://script.google.com/macros/s/AKfycbwyEx5noIfhLSMk3yAXwJWEVQ_zA1LvQpgeemVEyT7vU5r_wA9h5hIuAJso3i1Offp-/exec", "expense": "https://script.google.com/macros/s/AKfycbw7YgXLRQAiECakoXnyRS6A0kCK_wP3xkYQCsGYyBpLI218fzsThTRLzN5vFN6IM6bQ/exec", "raffle": "https://script.google.com/macros/s/AKfycby81zoMDJ3kTP5XbQ_xh2ubRyhDqDJ86jb7llJqMJjDNs1U93kN5ToULHpwCm_GXxtf/exec", "welfare": "https://script.google.com/macros/s/AKfycbwZPSPyz_AwV6aEsI-ZREKn6hO2RM7g0ylcF1gpZtOJUJlWBEZeiPuCX1ZwgQyp47dj/exec"};
 const getUrl  = id  => HARDCODED[id] || urls[id] || '';
 const saveUrl = (id, u) => { urls[id]=u; localStorage.setItem(STORE, JSON.stringify(urls)); };
 
