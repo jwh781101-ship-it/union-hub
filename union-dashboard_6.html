@@ -335,6 +335,7 @@ body {
       <span class="peek-icon">📣</span>
       <span class="peek-icon">📱</span>
       <span class="peek-icon">💰</span>
+      <span class="peek-icon">🎁</span>
       <span class="peek-icon">🎲</span>
     </div>
     <div class="sidebar-header">
@@ -424,6 +425,22 @@ const SYSTEMS = [
     ]
   },
   {
+    id: 'welfare', url: 'https://script.google.com/macros/s/AKfycbwZPSPyz_AwV6aEsI-ZREKn6hO2RM7g0ylcF1gpZtOJUJlWBEZeiPuCX1ZwgQyp47dj/exec', icon: '🎁', group: '복지몰 관리',
+    items: [
+      { icon: '📊', name: '현황판' },
+      { icon: '👥', name: '임직원 일괄등록' },
+      { icon: '🎯', name: '포인트 배정' },
+    ]
+  },
+  {
+    id: 'gongmun', url: '__inline__', icon: '📋', group: '공문 작성',
+    items: [
+      { icon: '✏️', name: '공문 작성' },
+      { icon: '💾', name: '저장된 문서' },
+      { icon: '📄', name: 'PDF 생성' },
+    ]
+  },
+  {
     id: 'raffle', url: 'https://script.google.com/macros/s/AKfycby81zoMDJ3kTP5XbQ_xh2ubRyhDqDJ86jb7llJqMJjDNs1U93kN5ToULHpwCm_GXxtf/exec', icon: '🎲', group: '이벤트 추첨',
     items: [
       { icon: '🔍', name: '과거 행사 참여자 조회' },
@@ -435,7 +452,7 @@ const SYSTEMS = [
 
 const STORE = 'ncHubUrls_v3';
 const urls  = JSON.parse(localStorage.getItem(STORE) || '{}');
-const HARDCODED = {"members": "https://script.google.com/macros/s/AKfycbxADZMqSdrmSFQTfoyhrJDjHDPa0EBI_PIJOEQWRCdFr2KuMPOIuyv9yDWemMLiAIComw/exec", "dues": "https://script.google.com/macros/s/AKfycbw9grufTk2mw4EfiGFG8ls2AO0vCFZdqwmcbLoD2_6nRnj8g2Jnb2GVWbQhmGUU0nlT/exec", "alimtalk": "https://script.google.com/macros/s/AKfycbytfXL_druAE9uOuhgCIUixJaXDXEnKwM20Lcwb6KaXYn_XeGe-HL32LL1MvzbzR-LV/exec", "sms": "https://script.google.com/macros/s/AKfycbwyEx5noIfhLSMk3yAXwJWEVQ_zA1LvQpgeemVEyT7vU5r_wA9h5hIuAJso3i1Offp-/exec", "expense": "https://script.google.com/macros/s/AKfycbw7YgXLRQAiECakoXnyRS6A0kCK_wP3xkYQCsGYyBpLI218fzsThTRLzN5vFN6IM6bQ/exec", "raffle": "https://script.google.com/macros/s/AKfycby81zoMDJ3kTP5XbQ_xh2ubRyhDqDJ86jb7llJqMJjDNs1U93kN5ToULHpwCm_GXxtf/exec"};
+const HARDCODED = {"members": "https://script.google.com/macros/s/AKfycbxADZMqSdrmSFQTfoyhrJDjHDPa0EBI_PIJOEQWRCdFr2KuMPOIuyv9yDWemMLiAIComw/exec", "dues": "https://script.google.com/macros/s/AKfycbw9grufTk2mw4EfiGFG8ls2AO0vCFZdqwmcbLoD2_6nRnj8g2Jnb2GVWbQhmGUU0nlT/exec", "alimtalk": "https://script.google.com/macros/s/AKfycbytfXL_druAE9uOuhgCIUixJaXDXEnKwM20Lcwb6KaXYn_XeGe-HL32LL1MvzbzR-LV/exec", "sms": "https://script.google.com/macros/s/AKfycbwyEx5noIfhLSMk3yAXwJWEVQ_zA1LvQpgeemVEyT7vU5r_wA9h5hIuAJso3i1Offp-/exec", "expense": "https://script.google.com/macros/s/AKfycbw7YgXLRQAiECakoXnyRS6A0kCK_wP3xkYQCsGYyBpLI218fzsThTRLzN5vFN6IM6bQ/exec", "raffle": "https://script.google.com/macros/s/AKfycby81zoMDJ3kTP5XbQ_xh2ubRyhDqDJ86jb7llJqMJjDNs1U93kN5ToULHpwCm_GXxtf/exec", "welfare": "https://script.google.com/macros/s/AKfycbwZPSPyz_AwV6aEsI-ZREKn6hO2RM7g0ylcF1gpZtOJUJlWBEZeiPuCX1ZwgQyp47dj/exec"};
 const getUrl  = id  => HARDCODED[id] || urls[id] || '';
 const saveUrl = (id, u) => { urls[id]=u; localStorage.setItem(STORE, JSON.stringify(urls)); };
 
@@ -531,7 +548,7 @@ function openGroup(grp, activeItem = null) {
     : grp.group;
 
   const url = getUrl(grp.id);
-  url ? renderFrame(url) : renderPlaceholder(grp);
+  url ? renderFrame(url, grp.id) : renderPlaceholder(grp);
 
   // 버튼 바인딩
   document.getElementById('btnNewTab').onclick = () => {
@@ -539,41 +556,72 @@ function openGroup(grp, activeItem = null) {
   };
   document.getElementById('btnReload').onclick = () => {
     const u = getUrl(activeGroupId);
-    if (u) { const f = document.querySelector('#frameBody iframe'); if(f){f.src='';setTimeout(()=>f.src=u,50);} }
+    if (u) { const f = iframeCache[activeGroupId]; if(f){f.src='';setTimeout(()=>f.src=u,50);} }
   };
   document.getElementById('btnClose').onclick = closeView;
 }
 
-function renderFrame(url) {
+// ── iframe 캐시 — 한번 로딩한 iframe은 숨겨두고 재사용 ──────────────
+const iframeCache = {}; // { groupId: iframeElement }
+
+function renderFrame(url, groupId) {
   document.getElementById('tbUrl').textContent = url;
-  document.getElementById('frameBody').innerHTML =
-    `<iframe src="${url}" allowfullscreen></iframe>`;
+  const body = document.getElementById('frameBody');
+
+  // 모든 캐시된 iframe 숨기기
+  Object.values(iframeCache).forEach(f => f.style.display = 'none');
+  // placeholder 제거
+  const ph = body.querySelector('.placeholder');
+  if (ph) ph.remove();
+
+  if (iframeCache[groupId]) {
+    // 이미 로딩된 iframe → 그냥 보여주기 (재로딩 없음)
+    iframeCache[groupId].style.display = 'block';
+  } else {
+    // 처음 로딩 → iframe 생성 후 캐시
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;position:absolute;inset:0;';
+    body.appendChild(iframe);
+    iframeCache[groupId] = iframe;
+  }
 }
 
 function renderPlaceholder(grp) {
   document.getElementById('tbUrl').textContent = '— URL 미설정';
+  const body = document.getElementById('frameBody');
+
+  // 모든 캐시된 iframe 숨기기
+  Object.values(iframeCache).forEach(f => f.style.display = 'none');
+
+  // placeholder 이미 있으면 제거 후 재생성
+  const existing = body.querySelector('.placeholder');
+  if (existing) existing.remove();
+
   const chips = grp.items.map(i => `<span class="ph-chip">${i.icon} ${i.name}</span>`).join('');
-  document.getElementById('frameBody').innerHTML = `
-    <div class="placeholder">
-      <div class="ph-emoji">${grp.icon}</div>
-      <div class="ph-title">${grp.group}</div>
-      <div class="ph-sub">GAS 배포 URL을 입력하면 이 창에서 바로 실행됩니다</div>
-      <div class="ph-chips">${chips}</div>
-      <div class="url-row">
-        <input class="url-input" id="urlInput" type="url"
-          placeholder="https://script.google.com/macros/s/...">
-        <button class="url-submit" id="urlSubmit">저장 &amp; 열기</button>
-      </div>
+  const ph = document.createElement('div');
+  ph.className = 'placeholder';
+  ph.innerHTML = `
+    <div class="ph-emoji">${grp.icon}</div>
+    <div class="ph-title">${grp.group}</div>
+    <div class="ph-sub">GAS 배포 URL을 입력하면 이 창에서 바로 실행됩니다</div>
+    <div class="ph-chips">${chips}</div>
+    <div class="url-row">
+      <input class="url-input" id="urlInput" type="url"
+        placeholder="https://script.google.com/macros/s/...">
+      <button class="url-submit" id="urlSubmit">저장 &amp; 열기</button>
     </div>
   `;
+  body.appendChild(ph);
+
   const submit = () => {
     const val = document.getElementById('urlInput').value.trim();
     if (!val) return;
     saveUrl(activeGroupId, val);
-    // dot 갱신
     const dot = document.querySelector(`.tree-group-label[data-group="${activeGroupId}"] .url-dot`);
     if (dot) dot.style.opacity = '0.75';
-    renderFrame(val);
+    renderFrame(val, activeGroupId);
   };
   document.getElementById('urlSubmit').addEventListener('click', submit);
   document.getElementById('urlInput').addEventListener('keydown', e => { if(e.key==='Enter') submit(); });
@@ -586,6 +634,8 @@ function closeView() {
   document.getElementById('breadcrumb').innerHTML = '<span>허브</span>';
   document.querySelectorAll('.tree-group-label').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
+  // iframe들은 숨기기만 (캐시 유지)
+  Object.values(iframeCache).forEach(f => f.style.display = 'none');
 }
 </script>
 </body>
